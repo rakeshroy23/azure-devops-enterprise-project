@@ -1,0 +1,220 @@
+trigger:
+  branches:
+    include:
+      - feature/terraform-architecture
+
+pool:
+  vmImage: ubuntu-latest
+
+
+variables:
+
+  terraformVersion: '1.15.7'
+
+  workingDirectory: 'infrastructure/environments/dev'
+
+  serviceConnection: 'sc-devops-enterprise'
+
+
+stages:
+
+# ======================================
+# Stage 1 - Terraform Validate
+# ======================================
+
+- stage: Validate
+  displayName: Terraform Validate
+
+  jobs:
+
+  - job: TerraformValidate
+
+    displayName: Validate Terraform Code
+
+    steps:
+
+    - checkout: self
+
+
+    - task: TerraformInstaller@1
+      displayName: Install Terraform
+      inputs:
+        terraformVersion: $(terraformVersion)
+
+
+    - task: TerraformTaskV4@4
+      displayName: Terraform Init
+
+      inputs:
+        provider: azurerm
+        command: init
+        workingDirectory: $(workingDirectory)
+        backendServiceArm: $(serviceConnection)
+
+
+    - task: TerraformTaskV4@4
+      displayName: Terraform Format Check
+
+      inputs:
+        provider: azurerm
+        command: custom
+        customCommand: fmt
+        commandOptions: '-check'
+        workingDirectory: $(workingDirectory)
+
+
+    - task: TerraformTaskV4@4
+      displayName: Terraform Validate
+
+      inputs:
+        provider: azurerm
+        command: validate
+        workingDirectory: $(workingDirectory)
+
+
+
+# ======================================
+# Stage 2 - Terraform Plan
+# ======================================
+
+- stage: Plan
+
+  displayName: Terraform Plan
+
+  dependsOn: Validate
+
+
+  jobs:
+
+  - job: TerraformPlan
+
+    displayName: Create Terraform Plan
+
+
+    steps:
+
+    - checkout: self
+
+
+    - task: TerraformInstaller@1
+
+      inputs:
+        terraformVersion: $(terraformVersion)
+
+
+    - task: TerraformTaskV4@4
+
+      displayName: Terraform Init
+
+      inputs:
+        provider: azurerm
+        command: init
+        workingDirectory: $(workingDirectory)
+        backendServiceArm: $(serviceConnection)
+
+
+
+    - task: TerraformTaskV4@4
+
+      displayName: Terraform Plan
+
+      inputs:
+
+        provider: azurerm
+
+        command: plan
+
+        workingDirectory: $(workingDirectory)
+
+        environmentServiceNameAzureRM: $(serviceConnection)
+
+        commandOptions: '-out=tfplan'
+
+
+
+    - publish: $(workingDirectory)/tfplan
+
+      artifact: terraform-plan
+
+
+
+# ======================================
+# Stage 3 - Terraform Apply
+# ======================================
+
+- stage: Apply
+
+  displayName: Terraform Apply
+
+
+  dependsOn: Plan
+
+
+  jobs:
+
+
+  - deployment: TerraformApply
+
+    displayName: Apply Infrastructure
+
+
+    environment: dev-approval
+
+
+    strategy:
+
+      runOnce:
+
+        deploy:
+
+          steps:
+
+
+          - checkout: self
+
+
+          - task: TerraformInstaller@1
+
+            inputs:
+
+              terraformVersion: $(terraformVersion)
+
+
+
+          - download: current
+
+            artifact: terraform-plan
+
+
+
+          - task: TerraformTaskV4@4
+
+            displayName: Terraform Init
+
+            inputs:
+
+              provider: azurerm
+
+              command: init
+
+              workingDirectory: $(workingDirectory)
+
+              backendServiceArm: $(serviceConnection)
+
+
+
+          - task: TerraformTaskV4@4
+
+            displayName: Terraform Apply
+
+            inputs:
+
+              provider: azurerm
+
+              command: apply
+
+              workingDirectory: $(workingDirectory)
+
+              environmentServiceNameAzureRM: $(serviceConnection)
+
+              commandOptions: '$(Pipeline.Workspace)/terraform-plan/tfplan'
