@@ -106,24 +106,49 @@ Update State
 
 ### Why do we use versions.tf?
 
-(To be completed.)
+"versions.tf defines the supported Terraform CLI version and the required provider versions. It ensures that developers and CI/CD pipelines use compatible versions, resulting in consistent and predictable infrastructure deployments.
 
 ### What does required_providers do?
 
-(To be completed.)
+"required_providers tells Terraform which provider plugins are required, where to download them from, and which versions are supported. During terraform init, Terraform downloads these providers from the Terraform Registry."
 
 ### Why should provider versions be pinned?
 
-(To be completed.)
+By pinning everyone including Azure DevOps agents uses same compatible verions
 
 ### What happens during terraform init?
 
-(To be completed.)
+terraform init
+
+↓
+
+Read all *.tf files
+↓
+
+find required providers
+
+↓
+
+Download Provider plugins
+
+↓
+
+
+Configure Backend
+↓
+
+Intilize working Directory
+↓
+
+Terraform ready for Plan/Apply
 
 ---
 
 ## Current Status
 
-Project structure completed.
-
-Terraform code implementation has not started yet.
+Variables created
+Local values created
+Environment-specific values in terraform.tfvars
+CIDR addressing decisions
+Authentication approach (Azure CLI locally, OIDC in Azure DevOps)
+Key interview questions and answers from these lessons
