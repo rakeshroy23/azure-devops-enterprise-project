@@ -7,7 +7,7 @@ locals {
     Project     = local.project_name
     Environment = local.environment
     ManagedBy   = "Terraform"
-    Owner       = "Rakesh"
+    Repository  = "Azure-DevOps-Enterprise-Project"
   }
 
   name_prefix = "ado-dev"
