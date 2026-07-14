@@ -20,13 +20,13 @@
 - [x] Azure DevOps project created
 - [x] Azure Service Connection (OIDC)
 - [x] Documentation created
-- [ ] Terraform foundation
+- [x] Terraform foundation Created
 
 ---
 
 ## Phase 2 - Infrastructure
 
-- [ ] Remote backend
+- [ ] Remote backend Inprogress
 - [ ] Virtual Network
 - [ ] Network Security Groups
 - [ ] Azure Bastion
