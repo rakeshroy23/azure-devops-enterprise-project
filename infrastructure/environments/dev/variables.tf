@@ -35,3 +35,11 @@ variable "bastion_subnet_address_prefix" {
   description = "Address prefix for the Azure Bastion subnet"
   type        = list(string)
 }
+
+variable "backend_subnet_address_prefix" {
+
+  description = "Address prefix for backend subnet"
+
+  type = list(string)
+
+}
