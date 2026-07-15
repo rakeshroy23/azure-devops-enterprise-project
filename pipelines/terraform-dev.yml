@@ -9,11 +9,7 @@ pool:
 
 variables:
 
-  terraformVersion: '1.15.7'
-
-  workingDirectory: 'infrastructure/environments/dev'
-
-  serviceConnection: 'sc-devops-enterprise'
+- group: terraform-dev-vars
 
 
 stages:
