@@ -42,8 +42,6 @@ module "security" {
 
   backend_subnet_id = module.network.backend_subnet_id
 
-  bastion_subnet_id = module.network.bastion_subnet_id
-
   tags = local.common_tags
 
 }
