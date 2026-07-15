@@ -85,6 +85,21 @@ stages:
 
           terraform validate
 
+    - task: AzureCLI@2
+      displayName: Check Terraform Files
+
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: bash
+        scriptLocation: inlineScript
+
+        inlineScript: |
+
+          cd $(workingDirectory)
+
+          pwd
+
+          ls -la
 
 
 # ======================================
@@ -169,7 +184,9 @@ stages:
 
           cd $(workingDirectory)
 
-          terraform plan -out=tfplan
+          terraform plan \
+          -var-file="terraform.tfvars" \
+          -out=tfplan
 
 
 
