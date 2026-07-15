@@ -3,10 +3,8 @@ trigger:
     include:
       - feature/terraform-architecture
 
-
 pool:
   vmImage: ubuntu-latest
-
 
 variables:
 - group: terraform-dev-vars
@@ -19,16 +17,12 @@ stages:
 # ======================================
 
 - stage: Validate
-
   displayName: Terraform Validate
-
 
   jobs:
 
   - job: TerraformValidate
-
     displayName: Validate Terraform Code
-
 
     steps:
 
@@ -48,28 +42,17 @@ stages:
 
 
     - task: AzureCLI@2
-      displayName: Azure Login
+      displayName: Terraform Init
 
       inputs:
         azureSubscription: $(serviceConnection)
         scriptType: bash
         scriptLocation: inlineScript
-        addSpnToEnvironment: true
+
         inlineScript: |
-          az account show
 
-
-    - task: Bash@3
-      displayName: Terraform Init
-
-      inputs:
-        targetType: inline
-        script: |
-          export ARM_CLIENT_ID=$servicePrincipalId
-          export ARM_CLIENT_SECRET=$servicePrincipalKey
-          export ARM_TENANT_ID=$tenantId
-          export ARM_SUBSCRIPTION_ID=$subscriptionId
           cd $(workingDirectory)
+
           terraform init
 
 
@@ -78,18 +61,28 @@ stages:
 
       inputs:
         targetType: inline
+
         script: |
+
           cd $(workingDirectory)
+
           terraform fmt -check
 
 
-    - task: Bash@3
+    - task: AzureCLI@2
       displayName: Terraform Validate
 
       inputs:
-        targetType: inline
-        script: |
+        azureSubscription: $(serviceConnection)
+
+        scriptType: bash
+
+        scriptLocation: inlineScript
+
+        inlineScript: |
+
           cd $(workingDirectory)
+
           terraform validate
 
 
@@ -114,64 +107,83 @@ stages:
 
     steps:
 
+
     - checkout: self
 
 
     - task: Bash@3
       displayName: Install Terraform
 
+
       inputs:
+
         targetType: inline
+
         script: |
+
           wget https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
+
           unzip terraform_$(terraformVersion)_linux_amd64.zip
+
           sudo mv terraform /usr/local/bin/
 
 
+
     - task: AzureCLI@2
-      displayName: Azure Login
 
-      inputs:
-        azureSubscription: $(serviceConnection)
-        scriptType: bash
-        scriptLocation: inlineScript
-        addSpnToEnvironment: true
-        inlineScript: |
-          az account show
-
-
-    - task: Bash@3
       displayName: Terraform Init
 
+
       inputs:
-        targetType: inline
-        script: |
-          export ARM_CLIENT_ID=$servicePrincipalId
-          export ARM_CLIENT_SECRET=$servicePrincipalKey
-          export ARM_TENANT_ID=$tenantId
-          export ARM_SUBSCRIPTION_ID=$subscriptionId
-	  cd $(workingDirectory)
+
+        azureSubscription: $(serviceConnection)
+
+        scriptType: bash
+
+        scriptLocation: inlineScript
+
+
+        inlineScript: |
+
+          cd $(workingDirectory)
+
           terraform init
 
 
-    - task: Bash@3
+
+    - task: AzureCLI@2
+
       displayName: Terraform Plan
 
+
       inputs:
-        targetType: inline
-        script: |
+
+        azureSubscription: $(serviceConnection)
+
+        scriptType: bash
+
+        scriptLocation: inlineScript
+
+
+        inlineScript: |
+
           cd $(workingDirectory)
+
           terraform plan -out=tfplan
 
 
+
     - publish: $(workingDirectory)/tfplan
+
       artifact: terraform-plan
+
 
 
 
 # ======================================
 # Stage 3 - Terraform Apply
 # ======================================
+
 
 - stage: Apply
 
@@ -181,7 +193,9 @@ stages:
   dependsOn: Plan
 
 
+
   jobs:
+
 
   - deployment: TerraformApply
 
@@ -193,39 +207,38 @@ stages:
 
     strategy:
 
+
       runOnce:
 
+
         deploy:
+
 
           steps:
 
 
+
           - checkout: self
+
 
 
           - task: Bash@3
 
             displayName: Install Terraform
 
+
             inputs:
+
               targetType: inline
+
               script: |
+
                 wget https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
+
                 unzip terraform_$(terraformVersion)_linux_amd64.zip
+
                 sudo mv terraform /usr/local/bin/
 
-
-          - task: AzureCLI@2
-
-            displayName: Azure Login
-
-            inputs:
-              azureSubscription: $(serviceConnection)
-              scriptType: bash
-              scriptLocation: inlineScript
-              addSpnToEnvironment: true
-              inlineScript: |
-                az account show
 
 
           - download: current
@@ -234,28 +247,47 @@ stages:
 
 
 
-          - task: Bash@3
+
+          - task: AzureCLI@2
 
             displayName: Terraform Init
 
+
             inputs:
-              targetType: inline
-              script: |
-                export ARM_CLIENT_ID=$servicePrincipalId
-                export ARM_CLIENT_SECRET=$servicePrincipalKey
-                export ARM_TENANT_ID=$tenantId
-                export ARM_SUBSCRIPTION_ID=$subscriptionId
+
+              azureSubscription: $(serviceConnection)
+
+              scriptType: bash
+
+              scriptLocation: inlineScript
+
+
+              inlineScript: |
+
                 cd $(workingDirectory)
+
                 terraform init
 
 
 
-          - task: Bash@3
+
+
+          - task: AzureCLI@2
 
             displayName: Terraform Apply
 
+
             inputs:
-              targetType: inline
-              script: |
+
+              azureSubscription: $(serviceConnection)
+
+              scriptType: bash
+
+              scriptLocation: inlineScript
+
+
+              inlineScript: |
+
                 cd $(workingDirectory)
+
                 terraform apply "$(Pipeline.Workspace)/terraform-plan/tfplan"
