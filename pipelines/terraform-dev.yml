@@ -54,6 +54,7 @@ stages:
         azureSubscription: $(serviceConnection)
         scriptType: bash
         scriptLocation: inlineScript
+        addSpnToEnvironment: true
         inlineScript: |
           az account show
 
@@ -64,6 +65,10 @@ stages:
       inputs:
         targetType: inline
         script: |
+          export ARM_CLIENT_ID=$servicePrincipalId
+          export ARM_CLIENT_SECRET=$servicePrincipalKey
+          export ARM_TENANT_ID=$tenantId
+          export ARM_SUBSCRIPTION_ID=$subscriptionId
           cd $(workingDirectory)
           terraform init
 
@@ -130,6 +135,7 @@ stages:
         azureSubscription: $(serviceConnection)
         scriptType: bash
         scriptLocation: inlineScript
+        addSpnToEnvironment: true
         inlineScript: |
           az account show
 
@@ -140,7 +146,11 @@ stages:
       inputs:
         targetType: inline
         script: |
-          cd $(workingDirectory)
+          export ARM_CLIENT_ID=$servicePrincipalId
+          export ARM_CLIENT_SECRET=$servicePrincipalKey
+          export ARM_TENANT_ID=$tenantId
+          export ARM_SUBSCRIPTION_ID=$subscriptionId
+	  cd $(workingDirectory)
           terraform init
 
 
@@ -213,6 +223,7 @@ stages:
               azureSubscription: $(serviceConnection)
               scriptType: bash
               scriptLocation: inlineScript
+              addSpnToEnvironment: true
               inlineScript: |
                 az account show
 
@@ -230,6 +241,10 @@ stages:
             inputs:
               targetType: inline
               script: |
+                export ARM_CLIENT_ID=$servicePrincipalId
+                export ARM_CLIENT_SECRET=$servicePrincipalKey
+                export ARM_TENANT_ID=$tenantId
+                export ARM_SUBSCRIPTION_ID=$subscriptionId
                 cd $(workingDirectory)
                 terraform init
 
