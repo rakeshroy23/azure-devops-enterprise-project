@@ -30,4 +30,22 @@ module "network" {
 
 }
 
+module "security" {
+
+  source = "../../modules/security"
+
+  resource_group_name = azurerm_resource_group.main.name
+
+  location = var.location
+
+  web_subnet_id = module.network.web_subnet_id
+
+  backend_subnet_id = module.network.backend_subnet_id
+
+  bastion_subnet_id = module.network.bastion_subnet_id
+
+  tags = local.common_tags
+
+}
+
 
