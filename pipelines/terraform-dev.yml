@@ -9,6 +9,8 @@ pool:
 variables:
 - group: terraform-dev-vars
 
+- name: TF_VAR_public_key
+  value: $(publicKey)
 
 stages:
 

@@ -46,4 +46,19 @@ module "security" {
 
 }
 
+module "compute" {
 
+  source = "../../modules/compute"
+
+  location            = var.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  backend_subnet_id = module.network.backend_subnet_id
+
+  admin_username = var.admin_username
+  public_key     = var.public_key
+  vm_size        = var.vm_size
+
+  tags = local.common_tags
+
+}

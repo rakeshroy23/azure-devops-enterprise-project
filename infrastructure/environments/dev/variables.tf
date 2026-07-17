@@ -43,3 +43,21 @@ variable "backend_subnet_address_prefix" {
   type = list(string)
 
 }
+
+variable "admin_username" {
+  description = "VM administrator username"
+  type        = string
+}
+
+variable "public_key" {
+
+  description = "SSH public key"
+
+  type = string
+
+}
+
+variable "vm_size" {
+  description = "Azure VM Size"
+  type        = string
+}
