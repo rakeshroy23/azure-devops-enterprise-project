@@ -168,28 +168,51 @@ stages:
 
 
 
-    - task: AzureCLI@2
+- task: AzureCLI@2
+  displayName: Terraform Plan
 
-      displayName: Terraform Plan
+  inputs:
+    azureSubscription: $(serviceConnection)
+    scriptType: bash
+    scriptLocation: inlineScript
 
+    inlineScript: |
+      set -x
 
-      inputs:
+      echo "===== Azure Login Successful ====="
 
-        azureSubscription: $(serviceConnection)
+      az account show
 
-        scriptType: bash
+      echo "===== Current Directory ====="
 
-        scriptLocation: inlineScript
+      pwd
 
+      echo "===== Change Directory ====="
 
-        inlineScript: |
+      cd $(workingDirectory)
 
-          cd $(workingDirectory)
+      pwd
 
-          terraform plan \
-          -var-file="terraform.tfvars" \
-          -out=tfplan
+      ls -la
 
+      echo "===== Terraform Version ====="
+
+      terraform version
+
+      echo "===== Terraform Init ====="
+
+      terraform init
+
+      echo "===== Terraform Plan ====="
+
+      terraform plan \
+        -input=false \
+        -no-color \
+        -var-file="terraform.tfvars" \
+        -var="public_key=$(publicKey)" \
+        -out=tfplan
+
+      echo "===== Plan Complete ====="
 
 
     - publish: $(workingDirectory)/tfplan
