@@ -9,14 +9,15 @@ pool:
 variables:
 - group: terraform-dev-vars
 
+# Terraform automatically maps TF_VAR_public_key -> variable "public_key"
 - name: TF_VAR_public_key
   value: $(publicKey)
 
 stages:
 
-# ======================================
-# Stage 1 - Terraform Validate
-# ======================================
+# =====================================================
+# Stage 1 - Validate
+# =====================================================
 
 - stage: Validate
   displayName: Terraform Validate
@@ -30,18 +31,18 @@ stages:
 
     - checkout: self
 
-
     - task: Bash@3
       displayName: Install Terraform
-
       inputs:
         targetType: inline
         script: |
+          set -euxo pipefail
+
           wget https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
           unzip terraform_$(terraformVersion)_linux_amd64.zip
           sudo mv terraform /usr/local/bin/
-          terraform version
 
+          terraform version
 
     - task: AzureCLI@2
       displayName: Terraform Init
@@ -53,10 +54,11 @@ stages:
 
         inlineScript: |
 
+          set -euxo pipefail
+
           cd $(workingDirectory)
 
-          terraform init
-
+          terraform init -input=false
 
     - task: Bash@3
       displayName: Terraform Format Check
@@ -66,10 +68,11 @@ stages:
 
         script: |
 
+          set -euxo pipefail
+
           cd $(workingDirectory)
 
           terraform fmt -check
-
 
     - task: AzureCLI@2
       displayName: Terraform Validate
@@ -83,9 +86,11 @@ stages:
 
         inlineScript: |
 
+          set -euxo pipefail
+
           cd $(workingDirectory)
 
-          terraform validate
+          terraform validate -no-color
 
     - task: AzureCLI@2
       displayName: Check Terraform Files
@@ -97,239 +102,175 @@ stages:
 
         inlineScript: |
 
+          set -euxo pipefail
+
           cd $(workingDirectory)
 
           pwd
-
           ls -la
 
-
-# ======================================
-# Stage 2 - Terraform Plan
-# ======================================
+# =====================================================
+# Stage 2 - Plan
+# =====================================================
 
 - stage: Plan
-
   displayName: Terraform Plan
-
   dependsOn: Validate
-
 
   jobs:
 
   - job: TerraformPlan
-
     displayName: Create Terraform Plan
-
 
     steps:
 
-
     - checkout: self
-
 
     - task: Bash@3
       displayName: Install Terraform
 
-
       inputs:
-
         targetType: inline
 
         script: |
 
+          set -euxo pipefail
+
           wget https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
-
           unzip terraform_$(terraformVersion)_linux_amd64.zip
-
           sudo mv terraform /usr/local/bin/
 
-
+          terraform version
 
     - task: AzureCLI@2
-
       displayName: Terraform Init
 
-
       inputs:
-
         azureSubscription: $(serviceConnection)
-
         scriptType: bash
-
         scriptLocation: inlineScript
-
 
         inlineScript: |
 
+          set -euxo pipefail
+
           cd $(workingDirectory)
 
-          terraform init
+          terraform init -input=false
 
+    - task: AzureCLI@2
+      displayName: Terraform Plan
 
+      inputs:
+        azureSubscription: $(serviceConnection)
+        scriptType: bash
+        scriptLocation: inlineScript
 
-- task: AzureCLI@2
-  displayName: Terraform Plan
+        inlineScript: |
 
-  inputs:
-    azureSubscription: $(serviceConnection)
-    scriptType: bash
-    scriptLocation: inlineScript
+          set -euxo pipefail
 
-    inlineScript: |
-      set -x
+          echo "===== Azure Login Successful ====="
 
-      echo "===== Azure Login Successful ====="
+          az account show
 
-      az account show
+          echo "===== Working Directory ====="
 
-      echo "===== Current Directory ====="
+          cd $(workingDirectory)
 
-      pwd
+          pwd
+          ls -la
 
-      echo "===== Change Directory ====="
+          echo "===== Terraform Version ====="
 
-      cd $(workingDirectory)
+          terraform version
 
-      pwd
+          echo "===== Running Terraform Plan ====="
 
-      ls -la
+          terraform plan \
+            -input=false \
+            -no-color \
+            -var-file="terraform.tfvars" \
+            -out=tfplan
 
-      echo "===== Terraform Version ====="
-
-      terraform version
-
-      echo "===== Terraform Init ====="
-
-      terraform init
-
-      echo "===== Terraform Plan ====="
-
-      terraform plan \
-        -input=false \
-        -no-color \
-        -var-file="terraform.tfvars" \
-        -var="public_key=$(publicKey)" \
-        -out=tfplan
-
-      echo "===== Plan Complete ====="
-
+          echo "===== Terraform Plan Completed ====="
 
     - publish: $(workingDirectory)/tfplan
-
       artifact: terraform-plan
 
-
-
-
-# ======================================
-# Stage 3 - Terraform Apply
-# ======================================
-
+# =====================================================
+# Stage 3 - Apply
+# =====================================================
 
 - stage: Apply
-
   displayName: Terraform Apply
-
-
   dependsOn: Plan
 
-
-
   jobs:
-
 
   - deployment: TerraformApply
 
     displayName: Apply Infrastructure
 
-
     environment: dev-approval
-
 
     strategy:
 
-
       runOnce:
-
 
         deploy:
 
-
           steps:
-
-
 
           - checkout: self
 
-
-
           - task: Bash@3
-
             displayName: Install Terraform
 
-
             inputs:
-
               targetType: inline
 
               script: |
 
+                set -euxo pipefail
+
                 wget https://releases.hashicorp.com/terraform/$(terraformVersion)/terraform_$(terraformVersion)_linux_amd64.zip
-
                 unzip terraform_$(terraformVersion)_linux_amd64.zip
-
                 sudo mv terraform /usr/local/bin/
 
-
+                terraform version
 
           - download: current
-
             artifact: terraform-plan
 
-
-
-
           - task: AzureCLI@2
-
             displayName: Terraform Init
 
-
             inputs:
-
               azureSubscription: $(serviceConnection)
-
               scriptType: bash
-
               scriptLocation: inlineScript
-
 
               inlineScript: |
 
+                set -euxo pipefail
+
                 cd $(workingDirectory)
 
-                terraform init
-
-
-
-
+                terraform init -input=false
 
           - task: AzureCLI@2
-
             displayName: Terraform Apply
 
-
             inputs:
-
               azureSubscription: $(serviceConnection)
-
               scriptType: bash
-
               scriptLocation: inlineScript
-
 
               inlineScript: |
 
+                set -euxo pipefail
+
                 cd $(workingDirectory)
 
-                terraform apply "$(Pipeline.Workspace)/terraform-plan/tfplan"
+                terraform apply -input=false "$(Pipeline.Workspace)/terraform-plan/tfplan"
