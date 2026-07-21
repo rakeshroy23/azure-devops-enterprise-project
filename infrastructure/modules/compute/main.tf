@@ -1,18 +1,20 @@
 resource "azurerm_network_interface" "web01" {
 
-  name                = "web01-nic"
+  name = "web01-nic"
 
-  location            = var.location
+  location = var.location
 
   resource_group_name = var.resource_group_name
 
   ip_configuration {
 
-    name                          = "internal"
+    name = "internal"
 
-    subnet_id                     = var.backend_subnet_id
+    subnet_id = var.web_subnet_id
 
-    private_ip_address_allocation = "Dynamic"
+    private_ip_address_allocation = "Static"
+
+    private_ip_address = "10.10.1.10"
 
   }
 
@@ -22,19 +24,21 @@ resource "azurerm_network_interface" "web01" {
 
 resource "azurerm_network_interface" "web02" {
 
-  name                = "web02-nic"
+  name = "web02-nic"
 
-  location            = var.location
+  location = var.location
 
   resource_group_name = var.resource_group_name
 
   ip_configuration {
 
-    name                          = "internal"
+    name = "internal"
 
-    subnet_id                     = var.backend_subnet_id
+    subnet_id = var.web_subnet_id
 
-    private_ip_address_allocation = "Dynamic"
+    private_ip_address_allocation = "Static"
+
+    private_ip_address = "10.10.1.11"
 
   }
 
@@ -45,9 +49,16 @@ resource "azurerm_network_interface" "web02" {
 resource "azurerm_linux_virtual_machine" "web01" {
 
   name                = "web01"
+  computer_name       = "web01"
   resource_group_name = var.resource_group_name
   location            = var.location
   size                = var.vm_size
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  boot_diagnostics {}
 
   admin_username = var.admin_username
 
@@ -88,9 +99,16 @@ resource "azurerm_linux_virtual_machine" "web01" {
 resource "azurerm_linux_virtual_machine" "web02" {
 
   name                = "web02"
+  computer_name       = "web02"
   resource_group_name = var.resource_group_name
   location            = var.location
   size                = var.vm_size
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  boot_diagnostics {}
 
   admin_username = var.admin_username
 

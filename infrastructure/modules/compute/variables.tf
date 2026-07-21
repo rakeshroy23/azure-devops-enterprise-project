@@ -14,12 +14,9 @@ variable "resource_group_name" {
 
 }
 
-variable "backend_subnet_id" {
-
-  description = "Backend subnet ID"
-
-  type = string
-
+variable "web_subnet_id" {
+  description = "Web subnet ID"
+  type        = string
 }
 
 variable "admin_username" {
