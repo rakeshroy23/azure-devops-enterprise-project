@@ -29,6 +29,4 @@ backend_subnet_address_prefix = [
 
 admin_username = "azureuser"
 
-public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDD9ZOeYQZ//0KPearwcVKCUKWJUukorc32UbvGeIBEx rakesh@azure-devops-project"
-
 vm_size = "Standard_B1s"
