@@ -188,6 +188,7 @@ stages:
 
           terraform plan \
           -var-file="terraform.tfvars" \
+          -var="public_key=$(sshPublicKey)" \
           -out=tfplan
 
 
