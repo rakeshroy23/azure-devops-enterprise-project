@@ -9,9 +9,6 @@ pool:
 variables:
 - group: terraform-dev-vars
 
-# Terraform automatically maps TF_VAR_public_key -> variable "public_key"
-- name: TF_VAR_public_key
-  value: $(publicKey)
 
 stages:
 
@@ -160,6 +157,8 @@ stages:
 
     - task: AzureCLI@2
       displayName: Terraform Plan
+      env:
+        TF_VAR_public_key: $(publicKey)
 
       inputs:
         azureSubscription: $(serviceConnection)
@@ -184,6 +183,12 @@ stages:
           echo "===== Terraform Version ====="
 
           terraform version
+ 
+          echo "===== TF_VAR Debug ====="
+
+          echo "Pipeline variable length: ${#TF_VAR_public_key}"
+
+          printenv | grep TF_VAR || true
 
           echo "===== Running Terraform Plan ====="
 
@@ -261,6 +266,9 @@ stages:
 
           - task: AzureCLI@2
             displayName: Terraform Apply
+            
+            env:
+              TF_VAR_public_key: $(publicKey)
 
             inputs:
               azureSubscription: $(serviceConnection)
@@ -273,4 +281,6 @@ stages:
 
                 cd $(workingDirectory)
 
-                terraform apply -input=false "$(Pipeline.Workspace)/terraform-plan/tfplan"
+                terraform apply \
+                  -input=false \
+                  "$(Pipeline.Workspace)/terraform-plan/tfplan"
