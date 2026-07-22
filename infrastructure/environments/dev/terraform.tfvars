@@ -1,5 +1,5 @@
 # Azure Region
-location = "centralindia"
+location = "southindia"
 
 # Environment
 environment = "dev"
@@ -29,4 +29,4 @@ backend_subnet_address_prefix = [
 
 admin_username = "azureuser"
 
-vm_size = "Standard_B1s"
+vm_size = "Standard_B2ats_v2"
