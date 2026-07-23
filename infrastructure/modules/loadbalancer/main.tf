@@ -35,3 +35,21 @@ resource "azurerm_lb_backend_address_pool" "web" {
   loadbalancer_id = azurerm_lb.main.id
 
 }
+
+resource "azurerm_network_interface_backend_address_pool_association" "web01" {
+
+  network_interface_id    = var.web_nic_ids[0]
+
+  ip_configuration_name   = "internal"
+
+  backend_address_pool_id = azurerm_lb_backend_address_pool.web.id
+}
+
+resource "azurerm_network_interface_backend_address_pool_association" "web02" {
+
+  network_interface_id    = var.web_nic_ids[1]
+
+  ip_configuration_name   = "internal"
+
+  backend_address_pool_id = azurerm_lb_backend_address_pool.web.id
+}
