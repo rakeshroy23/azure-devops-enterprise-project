@@ -1,8 +1,13 @@
 trigger:
   branches:
     include:
-      - feature/terraform-architecture
+      - main
+      - feature/*
 
+pr:
+  branches:
+    include:
+      - main
 pool:
   vmImage: ubuntu-latest
 
