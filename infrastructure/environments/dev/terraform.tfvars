@@ -1,5 +1,5 @@
 # Azure Region
-location = "centralindia"
+location = "southindia"
 
 # Environment
 environment = "dev"
@@ -26,3 +26,7 @@ bastion_subnet_address_prefix = [
 backend_subnet_address_prefix = [
   "10.10.3.0/24"
 ]
+
+admin_username = "azureuser"
+
+vm_size = "Standard_B2ats_v2"

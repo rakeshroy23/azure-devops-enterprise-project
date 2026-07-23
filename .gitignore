@@ -18,3 +18,13 @@ terraform.tfvars
 
 # Environment
 .env
+tfplan
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+tfplan
