@@ -67,3 +67,28 @@ resource "azurerm_lb_probe" "http" {
   interval_in_seconds = 5
   number_of_probes    = 2
 }
+
+resource "azurerm_lb_rule" "http" {
+
+  name = "http-rule"
+
+  loadbalancer_id = azurerm_lb.main.id
+
+  protocol = "Tcp"
+
+  frontend_port = 80
+
+  backend_port = 80
+
+  frontend_ip_configuration_name = azurerm_lb.main.frontend_ip_configuration[0].name
+
+  backend_address_pool_ids = [
+    azurerm_lb_backend_address_pool.web.id
+  ]
+
+  probe_id = azurerm_lb_probe.http.id
+
+  idle_timeout_in_minutes = 4
+
+  enable_floating_ip = false
+}
