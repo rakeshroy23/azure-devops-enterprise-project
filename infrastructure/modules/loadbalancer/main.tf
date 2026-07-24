@@ -90,5 +90,5 @@ resource "azurerm_lb_rule" "http" {
 
   idle_timeout_in_minutes = 4
 
-  enable_floating_ip = false
+  floating_ip_enabled = false
 }
