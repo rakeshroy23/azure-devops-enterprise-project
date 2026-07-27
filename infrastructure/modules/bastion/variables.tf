@@ -9,3 +9,7 @@ variable "location" {
 variable "tags" {
   type = map(string)
 }
+
+variable "bastion_subnet_id" {
+  type = string
+}

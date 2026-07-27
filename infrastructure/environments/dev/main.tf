@@ -79,5 +79,7 @@ module "bastion" {
 
   resource_group_name = azurerm_resource_group.main.name
   location            = var.location
-  tags                = local.common_tags
+
+  bastion_subnet_id = module.network.bastion_subnet_id
+  tags              = local.common_tags
 }
