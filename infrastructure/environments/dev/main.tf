@@ -73,3 +73,11 @@ module "loadbalancer" {
 
   web_nic_ids = module.compute.nic_ids
 }
+
+module "bastion" {
+  source = "../../modules/bastion"
+
+  resource_group_name = azurerm_resource_group.main.name
+  location            = var.location
+  tags                = local.common_tags
+}
