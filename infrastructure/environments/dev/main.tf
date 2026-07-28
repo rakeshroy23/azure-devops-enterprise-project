@@ -106,3 +106,14 @@ module "keyvault" {
 
   tags = local.common_tags
 }
+
+module "loganalytics" {
+
+  source = "../../modules/loganalytics"
+
+  resource_group_name = azurerm_resource_group.main.name
+  location            = var.location
+  load_balancer_id    = module.loadbalancer.load_balancer_id
+  tags                = local.common_tags
+}
+
