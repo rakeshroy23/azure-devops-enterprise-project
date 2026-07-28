@@ -20,10 +20,6 @@ resource "azurerm_monitor_diagnostic_setting" "lb" {
     category = "LoadBalancerAlertEvent"
   }
 
-  enabled_log {
-    category = "LoadBalancerProbeHealthStatus"
-  }
-
   enabled_metric {
     category = "AllMetrics"
   }
