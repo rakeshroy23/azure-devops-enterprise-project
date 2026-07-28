@@ -17,7 +17,7 @@ resource "azurerm_monitor_diagnostic_setting" "lb" {
   log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
 
   enabled_log {
-    category = "LoadBalancerAlertEvent"
+    category = "LoadBalancerHealthEvent"
   }
 
   enabled_metric {
